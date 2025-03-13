@@ -20,7 +20,7 @@ export default function CreateTask() {
   const [formData, setFormData] = useState<TaskFormData>({
     name: '',
     instance_type: 'ubuntu',
-    model_provider: 'openai',
+    model_provider: 'gpt4',
     prompt: '',
     system_prompt: '',
     schedule: '',
@@ -141,8 +141,8 @@ export default function CreateTask() {
               boxSizing: 'border-box'
             }}
           >
-            <option value="openai">OpenAI (GPT-4o-2024-05-13)</option>
-            <option value="anthropic">Anthropic (Claude-3-Opus)</option>
+            <option value="gpt4">GPT-4o (2024-05-13)</option>
+            <option value="claude">Claude-3-Opus</option>
           </select>
         </div>
 

@@ -1,12 +1,12 @@
 # Skybit
 
-Skybit is a platform for deploying and managing Computer Use Agents (CUA) to run recurring tasks. It leverages Scrapybara's infrastructure to execute tasks using either OpenAI GPT-4o or Anthropic Claude models.
+Skybit is a platform for deploying and managing Computer Use Agents (CUA) to run recurring tasks. It leverages Scrapybara's infrastructure to execute tasks using either GPT-4o or Claude models.
 
 ## Features
 
 - **Agent Management**: Deploy and manage agents for various tasks
 - **Task Scheduling**: Schedule recurring tasks (interval or cron-based)
-- **Model Selection**: Choose between OpenAI GPT-4o-2024-05-13 or Anthropic Claude-3-Opus models
+- **Model Selection**: Choose between GPT-4o (2024-05-13) or Claude-3-Opus models
 - **Instance Types**: Support for Ubuntu and Browser instances
 - **Simple Dashboard**: Clean, easy-to-navigate UI for monitoring and controlling agents
 - **Task Execution**: Run tasks on demand or on schedule

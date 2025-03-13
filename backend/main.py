@@ -196,7 +196,7 @@ def execute_task(task_id: str, task_config: Dict[str, Any]):
     try:
         # Extract task configuration
         instance_type = task_config.get('instance_type', 'ubuntu')
-        model_provider = task_config.get('model_provider', 'openai')
+        model_provider = task_config.get('model_provider', 'gpt4')
         prompt = task_config.get('prompt', '')
         system_prompt = task_config.get('system_prompt')
         schema = task_config.get('schema')
@@ -204,10 +204,10 @@ def execute_task(task_id: str, task_config: Dict[str, Any]):
         # Start the appropriate instance
         if instance_type == 'ubuntu':
             instance = scrapybara_client.start_ubuntu(timeout_hours=1)
-            if model_provider == 'openai':
+            if model_provider == 'gpt4':
                 default_system_prompt = OPENAI_UBUNTU_PROMPT
             else:
-                default_system_prompt = ANTHROPIC_UBUNTU_PROMPT
+                default_system_prompt = ANTHROPIC_UBUNTU_PROMPT  # For claude model
             
             # We don't need to explicitly create tool instances in newer Scrapybara versions
             # The tools are automatically available based on the instance type
@@ -215,10 +215,10 @@ def execute_task(task_id: str, task_config: Dict[str, Any]):
                 
         elif instance_type == 'browser':
             instance = scrapybara_client.start_browser(timeout_hours=1)
-            if model_provider == 'openai':
+            if model_provider == 'gpt4':
                 default_system_prompt = OPENAI_BROWSER_PROMPT
             else:
-                default_system_prompt = ANTHROPIC_BROWSER_PROMPT
+                default_system_prompt = ANTHROPIC_BROWSER_PROMPT  # For claude model
             tools = []
         else:
             logger.error(f"Invalid instance type: {instance_type}")
@@ -228,9 +228,9 @@ def execute_task(task_id: str, task_config: Dict[str, Any]):
         system = system_prompt if system_prompt else default_system_prompt
         
         # Select the model
-        if model_provider == 'openai':
+        if model_provider == 'gpt4':
             model_name = "gpt-4o-2024-05-13"  # Latest GPT-4o model
-        elif model_provider == 'anthropic':
+        elif model_provider == 'claude':
             model_name = "claude-3-opus-20240229"  # Latest Claude model
         else:
             logger.error(f"Invalid model provider: {model_provider}")
