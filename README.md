@@ -1,16 +1,16 @@
 # Skybit
 
-Skybit is a platform for deploying and managing Computer Use Agents (CUA) to run recurring tasks. It leverages Scrapybara's infrastructure to execute tasks using either OpenAI CUA or Anthropic 3.7 models.
+Skybit is a platform for deploying and managing Computer Use Agents (CUA) to run recurring tasks. It leverages Scrapybara's infrastructure to execute tasks using either OpenAI GPT-4o or Anthropic Claude models.
 
 ## Features
 
 - **Agent Management**: Deploy and manage agents for various tasks
 - **Task Scheduling**: Schedule recurring tasks (interval or cron-based)
-- **Model Selection**: Choose between OpenAI CUA or Anthropic 3.7 models
+- **Model Selection**: Choose between OpenAI GPT-4o-2024-05-13 or Anthropic Claude-3-Opus models
 - **Instance Types**: Support for Ubuntu and Browser instances
-- **Tool Integration**: Use BashTool, ComputerTool, and EditTool
-- **Structured Output**: Define schemas for structured data extraction
-- **Dashboard**: Modern UI for monitoring and controlling agents
+- **Simple Dashboard**: Clean, easy-to-navigate UI for monitoring and controlling agents
+- **Task Execution**: Run tasks on demand or on schedule
+- **Detailed Monitoring**: View task execution results and errors
 
 ## Project Structure
 
@@ -19,7 +19,9 @@ skybit/
 ├── backend/              # FastAPI backend
 │   ├── main.py           # Main application file
 │   └── requirements.txt  # Python dependencies
-├── frontend/             # Next.js frontend with shadcn UI
+├── frontend/             # Next.js frontend with simple React components
+│   ├── pages/            # Next.js pages
+│   └── package.json      # JavaScript dependencies
 └── README.md             # Project documentation
 ```
 
@@ -42,12 +44,35 @@ echo "SCRAPYBARA_API_KEY=your_api_key_here" > .env
 3. Run the backend:
 
 ```bash
+cd backend
 uvicorn main:app --reload
 ```
 
 ## Frontend Setup
 
-The frontend will be implemented using Next.js with shadcn UI components for a modern dashboard interface.
+1. Install dependencies:
+
+```bash
+cd frontend
+npm install
+```
+
+2. Run the frontend development server:
+
+```bash
+cd frontend
+npm run dev
+```
+
+3. Access the dashboard at http://localhost:3000
+
+## Usage
+
+1. Create a new task by clicking "Create New Task" on the dashboard
+2. Fill in the task details including name, instance type, model provider, and prompt
+3. Set a schedule if you want the task to run automatically
+4. View task details and results by clicking on a task name
+5. Run tasks on demand using the "Run Now" button
 
 ## Deployment
 

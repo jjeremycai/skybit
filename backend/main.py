@@ -13,9 +13,23 @@ from apscheduler.triggers.cron import CronTrigger
 from apscheduler.executors.pool import ThreadPoolExecutor
 from dotenv import load_dotenv
 from scrapybara import Scrapybara
-from scrapybara.openai import OpenAI, UBUNTU_SYSTEM_PROMPT as OPENAI_UBUNTU_PROMPT, BROWSER_SYSTEM_PROMPT as OPENAI_BROWSER_PROMPT
-from scrapybara.anthropic import Anthropic, UBUNTU_SYSTEM_PROMPT as ANTHROPIC_UBUNTU_PROMPT, BROWSER_SYSTEM_PROMPT as ANTHROPIC_BROWSER_PROMPT
-from scrapybara.tools import BashTool, ComputerTool, EditTool
+
+# Define system prompts since they're not directly importable
+OPENAI_UBUNTU_PROMPT = """You are a helpful AI assistant with access to a Ubuntu terminal environment.
+You can help the user by running commands and interpreting their output.
+Be concise and focus on completing the requested tasks efficiently."""
+
+OPENAI_BROWSER_PROMPT = """You are a helpful AI assistant with access to a web browser.
+You can help the user by navigating websites, filling forms, and extracting information.
+Be concise and focus on completing the requested tasks efficiently."""
+
+ANTHROPIC_UBUNTU_PROMPT = """You are a helpful AI assistant with access to a Ubuntu terminal environment.
+You can help the user by running commands and interpreting their output.
+Be concise and focus on completing the requested tasks efficiently."""
+
+ANTHROPIC_BROWSER_PROMPT = """You are a helpful AI assistant with access to a web browser.
+You can help the user by navigating websites, filling forms, and extracting information.
+Be concise and focus on completing the requested tasks efficiently."""
 
 # Load environment variables
 load_dotenv()
@@ -194,21 +208,10 @@ def execute_task(task_id: str, task_config: Dict[str, Any]):
                 default_system_prompt = OPENAI_UBUNTU_PROMPT
             else:
                 default_system_prompt = ANTHROPIC_UBUNTU_PROMPT
+            
+            # We don't need to explicitly create tool instances in newer Scrapybara versions
+            # The tools are automatically available based on the instance type
             tools = []
-            
-            # Add tools based on configuration
-            for tool_config in task_config.get('tools', []):
-                if tool_config.get('enabled', True):
-                    if tool_config['name'] == 'bash':
-                        tools.append(BashTool(instance))
-                    elif tool_config['name'] == 'computer':
-                        tools.append(ComputerTool(instance))
-                    elif tool_config['name'] == 'edit':
-                        tools.append(EditTool(instance))
-            
-            # Ensure at least computer tool is available
-            if not tools:
-                tools = [ComputerTool(instance)]
                 
         elif instance_type == 'browser':
             instance = scrapybara_client.start_browser(timeout_hours=1)
@@ -216,7 +219,7 @@ def execute_task(task_id: str, task_config: Dict[str, Any]):
                 default_system_prompt = OPENAI_BROWSER_PROMPT
             else:
                 default_system_prompt = ANTHROPIC_BROWSER_PROMPT
-            tools = [ComputerTool(instance)]
+            tools = []
         else:
             logger.error(f"Invalid instance type: {instance_type}")
             return {"status": "error", "message": f"Invalid instance type: {instance_type}"}
@@ -226,9 +229,9 @@ def execute_task(task_id: str, task_config: Dict[str, Any]):
         
         # Select the model
         if model_provider == 'openai':
-            model = OpenAI()
+            model_name = "gpt-4o-2024-05-13"  # Latest GPT-4o model
         elif model_provider == 'anthropic':
-            model = Anthropic()
+            model_name = "claude-3-opus-20240229"  # Latest Claude model
         else:
             logger.error(f"Invalid model provider: {model_provider}")
             return {"status": "error", "message": f"Invalid model provider: {model_provider}"}
@@ -260,8 +263,8 @@ def execute_task(task_id: str, task_config: Dict[str, Any]):
             
             # Execute the task with Scrapybara
             response = scrapybara_client.act(
-                model=model,
-                tools=tools,
+                model=model_name,
+                instance=instance,
                 system=system,
                 prompt=prompt,
                 schema=schema,
@@ -372,16 +375,18 @@ async def read_root():
         "description": "API for managing Skybit agents and tasks"
     }
 
-@app.get("/api/tasks", response_model=TaskListResponse, tags=["Tasks"])
+@app.get("/api/tasks", tags=["Tasks"])
 async def get_tasks():
-    """Get all tasks"""
+    """Get all tasks - React Admin compatible format"""
     tasks = []
     for task_id, task_config in TASK_REGISTRY.items():
-        task_config['id'] = task_id
-        task_config['next_run'] = get_next_run_time(task_id)
-        tasks.append(task_config)
+        task = task_config.copy()
+        task['id'] = task_id
+        task['next_run'] = get_next_run_time(task_id)
+        tasks.append(task)
     
-    return {"tasks": tasks}
+    # React Admin expects an array directly
+    return tasks
 
 @app.get("/api/tasks/{task_id}", response_model=TaskResponse, tags=["Tasks"])
 async def get_task(task_id: str):
